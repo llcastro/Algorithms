@@ -3,6 +3,10 @@
 #include <assert.h>
 #include "binaria.h"
 
+/*
+* Autor: Luis Angelo Loss de Castro
+*/
+
 NoArvBinaria *buscaArvBinRec(NoArvBinaria *raiz, int k){
 	if(raiz == NULL) return NULL;
 

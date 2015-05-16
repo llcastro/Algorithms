@@ -3,6 +3,10 @@
 #include <assert.h>
 #include "binariaAVL.h"
 
+/*
+* Autor: Luis Angelo Loss de Castro
+*/
+
 void printPreOrdem(NoArvBinariaAVL *raiz){
 	if(raiz != NULL){
 		printf("%d %d\n", raiz->chave, raiz->fb);
