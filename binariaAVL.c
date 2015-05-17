@@ -30,8 +30,20 @@ void rotacaoSimplesDireita(NoArvBinariaAVL **raiz){
 	*raiz = (*raiz)->esq;
 	aux->esq = (*raiz)->dir;
 	(*raiz)->dir = aux;
-	(*raiz)->fb = 0;
-	aux->fb = 0;
+
+	if(aux->esq == NULL && aux->dir == NULL){
+		aux->fb = 0;
+		(*raiz)->fb = 0;
+	} else if(aux->esq != NULL && aux->dir != NULL){
+		aux->fb = 0;
+		(*raiz)->fb = 1;
+	} else if(aux->esq == NULL){
+		aux->fb = 1;
+		(*raiz)->fb = 1;
+	} else{
+		aux->fb = -1;
+		(*raiz)->fb = 1;
+	}
 }
 
 /*	a
@@ -48,8 +60,20 @@ void rotacaoSimplesEsquerda(NoArvBinariaAVL **raiz){
 	*raiz = (*raiz)->dir;
 	aux->dir = (*raiz)->esq;
 	(*raiz)->esq = aux;
-	aux->fb = 0;
-	(*raiz)->fb = 0;
+
+	if(aux->esq == NULL && aux->dir == NULL){
+		aux->fb = 0;
+		(*raiz)->fb = 0;
+	} else if(aux->esq != NULL && aux->dir != NULL){
+		aux->fb = 0;
+		(*raiz)->fb = -1;
+	} else if(aux->esq == NULL){
+		aux->fb = 1;
+		(*raiz)->fb = -1;
+	} else{
+		aux->fb = -1;
+		(*raiz)->fb = -1;
+	}
 }
 
 /*		c 		  c
@@ -73,9 +97,37 @@ void rotacaoDuplaDireita(NoArvBinariaAVL **raiz){
 	(*raiz) = (*raiz)->esq;
 	aux->esq = (*raiz)->dir;
 	(*raiz)->dir = aux;
-	aux->fb = 0;
-	(*raiz)->fb = 0;
 
+	short int dir=0;
+	short int esq=0;
+
+	if(aux->esq == NULL && aux->dir == NULL){
+		aux->fb = 0;
+	} else if(aux->esq != NULL && aux->dir != NULL){
+		aux->fb = 0;
+		dir = 1;
+	} else if(aux->esq == NULL){
+		aux->fb = 1;
+		dir = 1;
+	} else{
+		aux->fb = -1;
+		dir = 1;
+	}
+
+	if((*raiz)->esq->esq == NULL && (*raiz)->esq->dir == NULL){
+		(*raiz)->esq->fb = 0;
+	} else if((*raiz)->esq->esq != NULL && (*raiz)->esq->dir != NULL){
+		(*raiz)->esq->fb = 0;
+		esq = 1;
+	} else if((*raiz)->esq->esq == NULL){
+		(*raiz)->esq->fb = 1;
+		esq = 1;
+	} else {
+		(*raiz)->esq->fb = -1;
+		esq = 1;
+	}
+
+	(*raiz)->fb = dir - esq;
 }
 
 /*		a 		 a
@@ -100,13 +152,36 @@ void rotacaoDuplaEsquerda(NoArvBinariaAVL **raiz){
 	aux->dir = (*raiz)->esq;
 	(*raiz)->esq = aux;
 	
-	if(aux->dir != NULL){
-		aux->fb = 1;
-		(*raiz)->fb = -1;
-	} else
+	short int dir=0;
+	short int esq=0;
+
+	if(aux->esq == NULL && aux->dir == NULL){
 		aux->fb = 0;
-	(*raiz)->dir->fb = 0;
-	
+	} else if(aux->esq != NULL && aux->dir != NULL){
+		aux->fb = 0;
+		esq = 1;
+	} else if(aux->esq == NULL){
+		aux->fb = 1;
+		esq = 1;
+	} else{
+		aux->fb = -1;
+		esq = 1;
+	}
+
+	if((*raiz)->dir->esq == NULL && (*raiz)->dir->dir == NULL){
+		(*raiz)->dir->fb = 0;
+	} else if((*raiz)->dir->esq != NULL && (*raiz)->dir->dir != NULL){
+		(*raiz)->dir->fb = 0;
+		dir = 1;
+	} else if((*raiz)->dir->esq == NULL){
+		(*raiz)->dir->fb = 1;
+		dir = 1;
+	} else {
+		(*raiz)->dir->fb = -1;
+		dir = 1;
+	}
+
+	(*raiz)->fb = dir - esq;
 }
 
 
@@ -155,18 +230,18 @@ int insereAVLRec(NoArvBinariaAVL **raiz, int k){
 		(*raiz)->fb += f;
 		if((*raiz)->fb > 1 || (*raiz)->fb < -1){
 			rotaciona(raiz);
+			return 0;
 		}
-		if((*raiz)->fb < 0) return (((*raiz)->fb)*(-1));
-		return (*raiz)->fb;
+		return f;
 	} else {
 		int f = insereAVLRec(&((*raiz)->esq), k);
 		
 		(*raiz)->fb -= f;
 		if((*raiz)->fb > 1 || (*raiz)->fb < -1){
 			rotaciona(raiz);
+			return 0;
 		}
-		if((*raiz)->fb < 0) return (((*raiz)->fb)*(-1));
-		return (*raiz)->fb;
+		return f;
 	}
 	
 }
