@@ -243,5 +243,76 @@ int insereAVLRec(NoArvBinariaAVL **raiz, int k){
 		}
 		return f;
 	}
-	
+}
+
+// recebe o endereco do valor que se quer achar o proximo
+NoArvBinariaAVL *enderecoProxDir(NoArvBinariaAVL **raiz){
+	assert(raiz);
+	if(*raiz == NULL) return NULL;
+
+	if((*raiz)->esq != NULL){
+		(*raiz)->fb += 1;
+
+		if((*raiz)->fb > 1 || (*raiz)->fb < -1){
+			NoArvBinariaAVL *root = *raiz;
+			rotaciona(raiz);
+			*raiz = root;
+		}
+
+		if((*raiz)->esq->esq == NULL) {
+			if((*raiz)->esq->dir == NULL){
+				NoArvBinariaAVL *aux = (*raiz)->esq;
+				(*raiz)->esq = NULL;
+				return aux;
+			} else {
+				NoArvBinariaAVL *aux = ((*raiz)->esq);
+				(*raiz)->esq = (*raiz)->esq->dir;
+				return aux;
+			}
+		}
+		return enderecoProxDir(&((*raiz)->esq));
+	} else {
+		if((*raiz)->dir == NULL)
+			return *raiz;
+		NoArvBinariaAVL *aux = ((*raiz)->dir);
+		(*raiz)->dir = (*raiz)->dir->dir;
+		return aux;
+	}
+}
+
+int deletaNoAVLRec(NoArvBinariaAVL **raiz, int k){
+	assert(raiz);
+	if(*raiz == NULL) return -1;
+
+	if(k > (*raiz)->chave) {
+		int fb = deletaNoAVLRec(&((*raiz)->dir), k);
+		(*raiz)->fb -= fb;
+		if((*raiz)->fb > 1 || (*raiz)->fb < -1){
+			rotaciona(raiz);
+			return 0;
+		}
+		return fb;
+	} else if(k < (*raiz)->chave) {
+		int fb = deletaNoAVLRec(&((*raiz)->esq), k);
+		(*raiz)->fb += fb;
+		if((*raiz)->fb > 1 || (*raiz)->fb < -1){
+			rotaciona(raiz);
+			return 0;
+		}
+		return fb;
+	} else if((*raiz)->dir == NULL && (*raiz)->esq == NULL){
+		free(*raiz);
+		*raiz = NULL;
+		return 1;
+	} else {
+		NoArvBinariaAVL *prox = enderecoProxDir(&((*raiz)->dir));
+		if(prox == NULL) return -1;
+		
+		(*raiz)->chave = prox->chave;
+		free(prox);
+		prox = NULL;
+
+		(*raiz)->fb -= 1;
+		return 0;
+	}
 }
