@@ -31,6 +31,12 @@ int insere(NoArvBinariaAVL **raiz, int k);
 // insere um no em uma Arvore Binaria AVL
 int insereAVLRec(NoArvBinariaAVL **raiz, int k);
 
+// recebe o endereco do proximo a direita do que se deseja encontrar
+NoArvBinariaAVL *enderecoProxDir(NoArvBinariaAVL **raiz);
+
+// deleta um no da AVL recursivamente
+int deletaNoAVLRec(NoArvBinariaAVL **raiz, int k);
+
 
 
 
