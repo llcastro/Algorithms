@@ -54,6 +54,7 @@ noArvore23 *adicionaChave(noArvore23 *no, int info, noArvore23 *p) {
 }
 
 // divide o no em dois
+// rval = valor de retorna
 noArvore23 *quebraNo(noArvore23 **no, int val, int *rval, noArvore23 *subarvore) {
 	assert(no);
 	if(*no == NULL) return NULL;
@@ -92,71 +93,56 @@ noArvore23 *quebraNo(noArvore23 **no, int val, int *rval, noArvore23 *subarvore)
 	}
 }
 
-
-noArvore23 *insere(noArvore23 **no, int val, int *rval, noArvore23 **pai)
-{
+// rval = valor de retorna usado na recursao
+// pai = o pai do NO na descida da recursao, usado para identificar a necessidade da criacao
+//		 de outra raiz para a arvore
+noArvore23 *insere(noArvore23 **no, int val, int *rval, noArvore23 **pai) {
 	assert(no);
+
+	if(*no == NULL)	{
+		*no = criaNo(val, -1, 0, NULL, NULL, NULL);
+		return NULL;
+	}
+
 	noArvore23 *paux, *paux2;
 	int vaux, promov;
 
-	if(*no == NULL)
-	{
-		*no = criaNo(val,-1,0,NULL,NULL,NULL);
-		paux = NULL;
-		return paux;
-
-	}
-	if(noFolha(*no))
-	{
-		if((*no)->ninfo == 1)
-		{
-			*no = adicionaChave(*no,val,NULL);
+	if(noFolha(*no)) {
+		if((*no)->ninfo == 1) {
+			*no = adicionaChave(*no, val, NULL);
 			return NULL;
-		}
-		else
-		{
-			paux = quebraNo(no,val,&vaux,NULL);
+		} else {
+			paux = quebraNo(no, val, &vaux, NULL);
 			*rval = vaux;
-			if(*pai == NULL)
-			{
-				*no = criaNo(*rval,-1,0,*no,paux,NULL);
+			if(*pai == NULL) {
+				*no = criaNo(*rval, -1, 0, *no, paux, NULL);
 				return NULL;
-			}
-			else
+			} else
 				return paux;
 		}
-	}
-	else
-	{
+	} else {
 		if(val < (*no)->info)
-			paux = insere(&((*no)->esq),val,&vaux,no);
-		else
-		{
-			if(((*no)->ninfo == 1)||(val < (*no)->info2))
-				paux = insere(&((*no)->centro),val,&vaux,no);
+			paux = insere(&((*no)->esq), val, &vaux, no);
+		else {
+			if(((*no)->ninfo == 1) || (val < (*no)->info2))
+				paux = insere(&((*no)->centro), val, &vaux, no);
 			else
-				paux = insere(&((*no)->dir),val,&vaux, no);
+				paux = insere(&((*no)->dir), val, &vaux, no);
 		}
 	}
 	if(paux == NULL)
 		return NULL;
-	else
-	{
-		if((*no)->ninfo == 1)
-		{
-			*no = adicionaChave(*no,vaux,paux);
+	else {
+		if((*no)->ninfo == 1) {
+			*no = adicionaChave(*no, vaux, paux);
 			return NULL;
-		}
-		else
-		{
-			paux2 = quebraNo(no,vaux,&promov,paux);
+		} else {
+			paux2 = quebraNo(no, vaux, &promov, paux);
 			*rval = promov;
-			if(*pai == NULL)
-			{
-				*no = criaNo(*rval,-1,0,*no,paux2,NULL);
+			if(*pai == NULL) {
+				*no = criaNo(*rval, -1, 0, *no, paux2, NULL);
 				return NULL;
-			}
-			else
+			} else
 				return paux2;
 		}
 	}
@@ -246,10 +232,8 @@ void preOrdem(noArvore23 *no){
 
 int main() {
 
-	noArvore23 *no, *pai;
+	noArvore23 *no = NULL, *pai = NULL;
 	int opcao, val, rval;
-	no = NULL;
-	pai = NULL;
 
 	insere(&no,10,&rval,&pai);
 	insere(&no,20,&rval,&pai);
@@ -259,7 +243,7 @@ int main() {
 	insere(&no,14,&rval,&pai);
 	insere(&no,17,&rval,&pai);
 	insere(&no,3,&rval,&pai);
-	insere(&no,16,&rval,&pai);
+	//insere(&no,16,&rval,&pai);
 
 	preOrdem(no);
 
