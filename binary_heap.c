@@ -1,24 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-//#include "binary_heap.h"
+#include "binary_heap.h"
 
-typedef struct no {
-    int chave;
-    struct no *pai;
-    struct no *esq;
-    struct no *dir;
-} no;
 
-void preOrdem(no *root){
+void preOrdem(node *root){
     if(root != NULL){
-		printf("%d ", root->chave);
+		printf("%d ", root->peso);
 		preOrdem(root->esq);
 		preOrdem(root->dir);
 	}
 	return;
 }
 
-no *buscaRoot(no *root){
+node *buscaRoot(node *root){
     if(root){
         if(root->pai){
             return buscaRoot(root->pai);
@@ -26,43 +20,46 @@ no *buscaRoot(no *root){
             return root;
         }
     }
+    return NULL;
 }
 
-no *buscaMenorEsq(no **root){
+node *buscaMenorEsq(node **root){
     if(root == NULL || *root == NULL) return NULL;
 
     if((*root)->esq == NULL) return *root;
     return buscaMenorEsq(&((*root)->esq));
 }
 
-no *buscaMaiorDir(no **folha){
+node *buscaMaiorDir(node **folha){
     if(folha == NULL || *folha == NULL) return NULL;
 
     if((*folha)->dir == NULL) return *folha;
     return buscaMaiorDir(&((*folha)->dir));
 }
 
-no *_insereNo(no **filho, int k){
+node *_insereNo(node **filho, int k, int id){
 
     if(*filho == NULL) {
-        *filho = (no*)malloc(sizeof(no));
+        *filho = (node*)malloc(sizeof(node));
         if(*filho == NULL) return NULL;
         (*filho)->esq = NULL;
         (*filho)->dir = NULL;
         (*filho)->pai = NULL;
-        (*filho)->chave = k;
+        (*filho)->peso = k;
+        (*filho)->id = id;
         return *filho;
     }
 
-    no *caminho = NULL;
+    node *caminho = NULL;
 
     if((*filho)->esq == NULL && (*filho)->dir == NULL && (*filho)->pai == NULL) {
-        (*filho)->esq = (no*)malloc(sizeof(no));
+        (*filho)->esq = (node*)malloc(sizeof(node));
         if((*filho)->esq == NULL) return NULL;
         (*filho)->esq->pai = *filho;
         (*filho)->esq->esq = NULL;
         (*filho)->esq->dir = NULL;
-        (*filho)->esq->chave = k;
+        (*filho)->esq->peso = k;
+        (*filho)->esq->id = id;
         return ((*filho)->esq);
     }
     while(1){
@@ -70,33 +67,36 @@ no *_insereNo(no **filho, int k){
             caminho = *filho;
             *filho = (*filho)->pai;
         } else if((*filho)->esq && (*filho)->dir == NULL) {
-            no *aux = (no*)malloc(sizeof(no));
+            node *aux = (node*)malloc(sizeof(node));
             if(aux == NULL) return NULL;
             (*filho)->dir = aux;
             aux->pai = *filho;
             aux->esq = NULL;
             aux->dir = NULL;
-            aux->chave = k;
+            aux->peso = k;
+            aux->id = id;
             return ((*filho)->dir);
         } else if((*filho)->esq && (*filho)->dir && (*filho)->pai == NULL && (*filho)->dir == caminho) {
-            no *aux = buscaMenorEsq(filho);
+            node *aux = buscaMenorEsq(filho);
             if(aux == NULL) return NULL;
-            aux->esq = (no*)malloc(sizeof(no));
+            aux->esq = (node*)malloc(sizeof(node));
             if(aux->esq == NULL) return NULL;
             aux->esq->esq = NULL;
             aux->esq->dir = NULL;
             aux->esq->pai = aux;
-            aux->esq->chave = k;
+            aux->esq->peso = k;
+            aux->esq->id = id;
             return (aux->esq);
         } else if((*filho)->esq && (*filho)->dir && (*filho)->esq == caminho) {
-            no *aux = buscaMenorEsq(&((*filho)->dir));
+            node *aux = buscaMenorEsq(&((*filho)->dir));
             if(aux == NULL) return NULL;
-            aux->esq = (no*)malloc(sizeof(no));
+            aux->esq = (node*)malloc(sizeof(node));
             if(aux->esq == NULL) return NULL;
             aux->esq->esq = NULL;
             aux->esq->dir = NULL;
             aux->esq->pai = aux;
-            aux->esq->chave = k;
+            aux->esq->peso = k;
+            aux->esq->id = id;
             return (aux->esq);
         } else if((*filho)->esq && (*filho)->dir && (*filho)->pai) {
             caminho = *filho;
@@ -107,56 +107,64 @@ no *_insereNo(no **filho, int k){
     }
 }
 
-void swap(no *x, no *y){
+void swap(node *x, node *y, listaHeap *listaH){
     if(x == NULL || y == NULL) return;
+    if(listaH == NULL) return;
 
-    int i = x->chave;
-    x->chave = y->chave;
-    y->chave = i;
+    node *aux = listaH[x->id].no;
+    listaH[x->id].no = listaH[y->id].no;
+    listaH[y->id].no = aux;
+
+    int i = x->peso, j = x->id;
+    x->peso = y->peso;
+    x->id = y->id;
+    y->peso = i;
+    y->id = j;
 }
 
-void heapify_bottom_up(no **folha){
+void heapify_bottom_up(node **folha, listaHeap *listaH){
     if(folha == NULL || *folha == NULL) return;
+    if(listaH == NULL) return;
 
-    no *filho = *folha;
+    node *filho = *folha;
 
     while(filho->pai) {
         if(filho->pai->esq == filho){
             if(filho->pai->dir){
-                if(filho->pai->dir->chave < filho->chave){
-                    if(filho->pai->dir->chave < filho->pai->chave){
-                        swap(filho->pai->dir, filho->pai);
+                if(filho->pai->dir->peso < filho->peso){
+                    if(filho->pai->dir->peso < filho->pai->peso){
+                        swap(filho->pai->dir, filho->pai, listaH);
                         filho = filho->pai;
                     } else {
                         return;
                     }
                 } else {
-                    if(filho->chave < filho->pai->chave){
-                        swap(filho, filho->pai);
+                    if(filho->peso < filho->pai->peso){
+                        swap(filho, filho->pai, listaH);
                         filho = filho->pai;
                     } else {
                         return;
                     }
                 }
             } else {
-                if(filho->chave < filho->pai->chave){
-                    swap(filho, filho->pai);
+                if(filho->peso < filho->pai->peso){
+                    swap(filho, filho->pai, listaH);
                     filho = filho->pai;
                 } else {
                     return;
                 }
             }
         } else {
-            if(filho->chave < filho->pai->esq->chave){
-                if(filho->chave < filho->pai->chave){
-                    swap(filho, filho->pai);
+            if(filho->peso < filho->pai->esq->peso){
+                if(filho->peso < filho->pai->peso){
+                    swap(filho, filho->pai, listaH);
                     filho = filho->pai;
                 } else {
                     return;
                 }
             } else {
-                if(filho->pai->esq->chave < filho->pai->chave){
-                    swap(filho->pai->esq, filho->pai);
+                if(filho->pai->esq->peso < filho->pai->peso){
+                    swap(filho->pai->esq, filho->pai, listaH);
                     filho = filho->pai;
                 } else {
                     return;
@@ -166,39 +174,42 @@ void heapify_bottom_up(no **folha){
     }
 }
 
-no *insereNo(no **folha, int k){
-    no *aux = _insereNo(folha, k);
-    heapify_bottom_up(&aux);
+node *insereNo(node **folha, int k, int id, listaHeap *listaH){
+    node *aux = _insereNo(folha, k, id);
+    if(aux == NULL) return NULL;
+    listaH[aux->id].no = aux;
+    heapify_bottom_up(&aux, listaH);
     return aux;
 }
 
-void heapify_top_down(no **root){
+void heapify_top_down(node **root, listaHeap *listaH){
     if(root == NULL || *root == NULL) return;
+    if(listaH == NULL) return;
 
-    no *tno = *root;
+    node *no = *root;
 
     while(1){
-        if(tno->esq){
-            if(tno->dir){
-                if(tno->esq->chave < tno->dir->chave){
-                    if(tno->esq->chave < tno->chave){
-                        swap(tno, tno->esq);
-                        tno = tno->esq;
+        if(no->esq){
+            if(no->dir){
+                if(no->esq->peso < no->dir->peso){
+                    if(no->esq->peso < no->peso){
+                        swap(no, no->esq, listaH);
+                        no = no->esq;
                     } else {
                         return;
                     }
                 } else {
-                    if(tno->dir->chave < tno->chave){
-                        swap(tno, tno->dir);
-                        tno = tno->dir;
+                    if(no->dir->peso < no->peso){
+                        swap(no, no->dir, listaH);
+                        no = no->dir;
                     } else {
                         return;
                     }
                 }
             } else {
-                if(tno->esq->chave < tno->chave){
-                    swap(tno->esq, tno);
-                    tno = tno->esq;
+                if(no->esq->peso < no->peso){
+                    swap(no->esq, no, listaH);
+                    no = no->esq;
                 } else {
                     return;
                 }
@@ -209,39 +220,46 @@ void heapify_top_down(no **root){
     }
 }
 
-no *antecessor(no **folha){
-    if(folha == NULL || *folha == NULL) return;
+node *antecessor(node **folha){
+    if(folha == NULL || *folha == NULL) return NULL;
 
-    no *tno = *folha;
+    node *no = *folha;
 
     while(1) {
-        if(tno == (tno)->pai->esq) {
-            if((tno)->pai->pai == NULL) return buscaMaiorDir(&((tno)->pai));
-            tno = (tno)->pai;
+        if(no == (no)->pai->esq) {
+            if((no)->pai->pai == NULL) return buscaMaiorDir(&((no)->pai));
+            no = (no)->pai;
         } else {
-            return buscaMaiorDir(&((tno)->pai->esq));
+            return buscaMaiorDir(&((no)->pai->esq));
         }
     }
 }
 
-void removeNo(no **folha){
+void removeNo(node **folha){
     if(folha == NULL || *folha == NULL) return;
 
     free(*folha);
     *folha = NULL;
 }
 
-int extraiMin(no **folha){
-    if(folha == NULL || *folha == NULL) return;
+int extraiMin(node **folha, listaHeap *listaH){
+    if(folha == NULL || *folha == NULL) return -1;
+    if(listaH == NULL) return -1;
 
-    no *root = buscaRoot(*folha);
-    int k = root->chave;
+    node *root = buscaRoot(*folha);
+    if(root == NULL) return -1;
+    int k = root->id;
+    listaH[root->id].no = NULL;
     if(root == *folha){
+        listaH[(*folha)->id].no = NULL;
         removeNo(folha);
         return k;
     }
-    no *aux = antecessor(folha);
-    root->chave = (*folha)->chave;
+    node *aux = antecessor(folha);
+    root->peso = (*folha)->peso;
+    root->id = (*folha)->id;
+
+    listaH[(*folha)->id].no = root;
 
     if((*folha)->pai != NULL) {
         if((*folha)->pai->esq == *folha)
@@ -251,26 +269,18 @@ int extraiMin(no **folha){
     }
 
     *folha = aux;
-    heapify_top_down(&root);
+    heapify_top_down(&root, listaH);
 
     return k;
 }
 
-int main(){
+void decreaseKey(int idNo, listaHeap *listaH, int novaChave){
+    if(listaH == NULL) return;
+    if(idNo > listaH->tam || idNo < 0) return;
+    if(novaChave < 0) return;
 
-    no *folha = NULL;
-    int i;
-    for(i=0; i<100; i++){
-        folha = insereNo(&folha, i);
-    }
-    no *aux = buscaRoot(folha);
+    if(novaChave > listaH[idNo].no->peso) return;
 
-    for(i=0; i < 1030; i++){
-        extraiMin(&folha);
-    }
-
-    printf("ok\n");
-
-    return 0;
-
+    listaH[idNo].no->peso = novaChave;
+    heapify_bottom_up(&(listaH[idNo].no), listaH);
 }
