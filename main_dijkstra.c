@@ -13,7 +13,7 @@ void geraGrafo(Graph *graph){
 
     int i, j;
     for(i=0; i<(graph->V); i++){
-        for(j=0; j<(graph->V)/2; j++){
+        for(j=i; j<(graph->V); j++){
             if(j != i) {
                 addEdge(graph, i, j, rand()%1000);
             }
