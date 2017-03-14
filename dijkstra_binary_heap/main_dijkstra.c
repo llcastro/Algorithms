@@ -4,7 +4,7 @@
 #include <time.h>
 #include "adjacencyList.h"
 #include "binary_heap.h"
-//#include "dijkstra.h"
+#include "dijkstra.h"
 
 void geraGrafo(Graph *graph){
     if(graph == NULL) return;
@@ -23,7 +23,7 @@ void geraGrafo(Graph *graph){
 
 int main(){
 
-    int V = 25;
+    int V = 10;
     Graph *graph = createGraph(V);
     if(graph == NULL) return -1;
 
@@ -46,6 +46,7 @@ int main(){
     cm = (listaHeap*) dijkstra(graph, 0);
 
     int i;
+    printf("%d:", cm->tam);
     for (i = 0; i < cm->tam; i++) {
         printf("id:%d, idNo:%d, peso:%d\n", i, cm[i].idNo, cm[i].peso);
     }

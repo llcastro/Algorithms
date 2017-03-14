@@ -3,7 +3,7 @@
 #include <limits.h>
 #include "adjacencyList.h"
 #include "binary_heap.h"
-//#include "dijkstra.h"
+#include "dijkstra.h"
 
 listaHeap *dijkstra(Graph *graph, int source){
     if(graph == NULL) return NULL;
